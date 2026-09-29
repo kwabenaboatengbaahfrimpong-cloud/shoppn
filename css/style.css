@@ -1,0 +1,84 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    color: #222;
+    background: #fafafa;
+}
+
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: #222;
+    color: #fff;
+}
+
+.site-header .logo {
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.site-header nav a {
+    color: #fff;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+.site-header nav span {
+    margin-left: 15px;
+}
+
+main {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.form-page form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-page label {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.form-page input,
+.form-page select,
+.form-page textarea {
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-page button {
+    margin-top: 20px;
+    padding: 10px;
+    background: #222;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.field-error {
+    color: #c0392b;
+    font-size: 13px;
+}
+
+.error {
+    color: #c0392b;
+    font-weight: bold;
+}
+
+.site-footer {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+    font-size: 14px;
+}
