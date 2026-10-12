@@ -16,6 +16,10 @@ class CustomerClass extends Database {
     }
 
     public function addCustomer($name, $email, $pass, $country, $city, $contact) {
+        // PASSWORD HASHING: never store $pass itself. password_hash() with
+        // PASSWORD_BCRYPT one-way hashes it (with a random salt built in),
+        // so even with full database access no one can read the real password
+        // back out. login() below checks it with password_verify(), never ==.
         $hash = password_hash($pass, PASSWORD_BCRYPT);
 
         $stmt = $this->conn->prepare(
@@ -44,6 +48,8 @@ class CustomerClass extends Database {
             return false;
         }
 
+        // PASSWORD CHECK: password_verify() re-hashes the submitted password
+        // the same way and compares, it never reverses the stored hash.
         if (!password_verify($pass, $customer['customer_pass'])) {
             return false;
         }

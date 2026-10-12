@@ -4,4 +4,4 @@ require_once __DIR__ . '/core/core.php';
 $_SESSION = [];
 session_destroy();
 
-redirect('/shoppn/index.php');
+redirect(BASE_URL . '/index.php');
