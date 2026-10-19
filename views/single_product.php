@@ -20,10 +20,7 @@ if (!$p) {
     <?php require __DIR__ . '/layout/sidebar.php'; ?>
 
     <main class="shop-main">
-        <?php if (!empty($_SESSION['error'])): ?>
-            <div class="banner-error"><?php echo htmlspecialchars($_SESSION['error']); ?></div>
-            <?php unset($_SESSION['error']); ?>
-        <?php endif; ?>
+        <?php require __DIR__ . '/layout/flash.php'; ?>
         <div class="product-detail">
             <img src="<?php echo BASE_URL; ?>/images/products/<?php echo htmlspecialchars($p['product_image']); ?>"
                  alt="<?php echo htmlspecialchars($p['product_title']); ?>">

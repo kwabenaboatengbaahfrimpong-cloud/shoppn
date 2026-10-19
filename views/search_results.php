@@ -13,10 +13,7 @@ $products = $query === '' ? [] : $controller->searchProducts($query);
     <?php require __DIR__ . '/layout/sidebar.php'; ?>
 
     <main class="shop-main">
-        <?php if (!empty($_SESSION['error'])): ?>
-            <div class="banner-error"><?php echo htmlspecialchars($_SESSION['error']); ?></div>
-            <?php unset($_SESSION['error']); ?>
-        <?php endif; ?>
+        <?php require __DIR__ . '/layout/flash.php'; ?>
         <h1>Search results</h1>
 
         <?php if ($query === ''): ?>

@@ -1,4 +1,11 @@
-<?php require_once __DIR__ . '/../../core/core.php'; ?>
+<?php
+require_once __DIR__ . '/../../core/core.php';
+require_once __DIR__ . '/../../controllers/CartController.php';
+
+$cart_controller = new CartController();
+$cart_count = $cart_controller->getCartCount(get_ip());
+$cart_total = $cart_controller->getCartTotal(get_ip());
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,3 +43,7 @@
         <?php endif; ?>
     </nav>
 </header>
+<div class="cart-bar">
+    Shopping Cart &mdash; Total Items: <?php echo $cart_count; ?> | Total Price: GHS <?php echo number_format($cart_total, 2); ?> |
+    <a href="<?php echo BASE_URL; ?>/views/cart.php">Go to Cart</a>
+</div>
