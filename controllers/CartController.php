@@ -45,4 +45,17 @@ class CartController {
     public function updateQty($product_id, $new_qty, $ip) {
         return $this->model->updateQty($product_id, $new_qty, $ip);
     }
+
+    // Called only after Paystack has confirmed the payment.
+    public function processPayment($customer_id, $ip, $reference, $amount) {
+        $order_id = $this->model->processPayment($customer_id, $ip, $reference, $amount);
+        if (!$order_id) {
+            return ['success' => false, 'error' => 'Your payment went through but the order could not be saved. Contact us with reference ' . $reference . '.'];
+        }
+        return ['success' => true, 'order_id' => $order_id];
+    }
+
+    public function getOrderById($order_id, $customer_id) {
+        return $this->model->getOrderById($order_id, $customer_id);
+    }
 }

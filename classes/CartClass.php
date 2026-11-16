@@ -79,4 +79,93 @@ class CartClass extends Database {
         $stmt->close();
         return $ok;
     }
+
+    // ── Payment ─────────────────────────────────────────────────────
+
+    // Turns the cart into a paid order. Runs as one transaction:
+    // either every step saves, or none of them do.
+    // $amount is the amount Paystack confirmed, in cedis.
+    // Returns the new order_id, or false if anything failed.
+    public function processPayment($customer_id, $ip, $reference, $amount) {
+        $this->conn->begin_transaction();
+        try {
+            // 1. invoice number
+            $invoice_no = mt_rand(100000, 999999);
+
+            // 2. the order row
+            $stmt = $this->conn->prepare(
+                "INSERT INTO orders (customer_id, invoice_no, order_date, order_status)
+                 VALUES (?, ?, CURDATE(), 'paid')"
+            );
+            $stmt->bind_param('ii', $customer_id, $invoice_no);
+            $stmt->execute();
+            $order_id = $stmt->insert_id;
+            $stmt->close();
+
+            // 3. copy the cart rows into orderdetails
+            $stmt = $this->conn->prepare(
+                "INSERT INTO orderdetails (order_id, product_id, qty)
+                 SELECT ?, p_id, qty FROM cart WHERE ip_add = ?"
+            );
+            $stmt->bind_param('is', $order_id, $ip);
+            $stmt->execute();
+            $copied = $stmt->affected_rows;
+            $stmt->close();
+
+            if ($copied < 1) {
+                throw new Exception('Cart was empty when payment was recorded.');
+            }
+
+            // record the payment against the order
+            $stmt = $this->conn->prepare(
+                "INSERT INTO payment (amt, customer_id, order_id, currency, payment_date)
+                 VALUES (?, ?, ?, 'GHS', CURDATE())"
+            );
+            $stmt->bind_param('dii', $amount, $customer_id, $order_id);
+            $stmt->execute();
+            $stmt->close();
+
+            // 4. empty the cart
+            $stmt = $this->conn->prepare("DELETE FROM cart WHERE ip_add = ?");
+            $stmt->bind_param('s', $ip);
+            $stmt->execute();
+            $stmt->close();
+
+            $this->conn->commit();
+
+            // 5. hand back the new order id
+            return $order_id;
+        } catch (Throwable $e) {
+            $this->conn->rollback();
+            error_log('processPayment failed for ref ' . $reference . ': ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // One order with its items and payment. The customer_id check means
+    // a shopper only sees their own invoices, even if they change the
+    // order_id in the address bar.
+    public function getOrderById($order_id, $customer_id) {
+        $orders = $this->fetchRows(
+            "SELECT orders.*, payment.amt, payment.currency, payment.payment_date
+             FROM orders
+             LEFT JOIN payment ON payment.order_id = orders.order_id
+             WHERE orders.order_id = ? AND orders.customer_id = ?",
+            'ii', [$order_id, $customer_id]
+        );
+        if (count($orders) === 0) {
+            return false;
+        }
+
+        $order = $orders[0];
+        $order['items'] = $this->fetchRows(
+            "SELECT orderdetails.product_id, orderdetails.qty,
+                    products.product_title, products.product_price, products.product_image
+             FROM orderdetails
+             JOIN products ON products.product_id = orderdetails.product_id
+             WHERE orderdetails.order_id = ?",
+            'i', [$order_id]
+        );
+        return $order;
+    }
 }

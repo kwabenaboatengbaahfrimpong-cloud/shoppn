@@ -1,0 +1,2 @@
+# secret Paystack keys stay on the server, never on GitHub
+core/paystack_keys.php
